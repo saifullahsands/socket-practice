@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int            @id @default(autoincrement())
+  fullName        String
+  username        String
+  email           String         @unique
+  password        String
+  createdGroups   Group[]
+  groupMembership GroupUser[]
+  sentMessages    groupMessage[]
+
+  @@index([email])
+}
+
+model Group {
+  id            String         @id @default(uuid())
+  creator_id    Int
+  title         String?        @db.VarChar(101)
+  isPrivate     Boolean        @default(false)
+  created_at    DateTime       @default(now())
+  users         GroupUser[]
+  creator       User           @relation(fields: [creator_id], references: [id])
+  groupMessages groupMessage[]
+
+  @@map("group")
+}
+
+model GroupUser {
+  id       Int    @id @default(autoincrement())
+  group_id String
+  user_id  Int
+
+  joined_at DateTime @default(now())
+
+  group Group @relation(fields: [group_id], references: [id])
+  user  User  @relation(fields: [user_id], references: [id])
+
+  @@unique([group_id, user_id])
+  @@map("group_user")
+}
+
+model groupMessage {
+  id         Int      @id @default(autoincrement())
+  group_id   String
+  sender_id  Int
+  content    String
+  created_at DateTime @default(now())
+
+  group  Group @relation(fields: [group_id], references: [id])
+  Sender User  @relation(fields: [sender_id], references: [id])
+}
