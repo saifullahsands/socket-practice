@@ -11,9 +11,9 @@ const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await AUTH_SERVICE.findUserByEmail(email);
-    if (!user) return BadRequestError(res, "Invalid credientials ");
+    if (!user) return BadRequestError(res, "Invalid credientials 1 ");
     const matchedPassword = await comparePassword(password, user.password);
-    if (!matchedPassword) return BadRequestError(res, "Invalid credientials");
+    if (!matchedPassword) return BadRequestError(res, "Invalid credientials 2");
 
     const token = await generateToken(user.id);
 
@@ -31,12 +31,12 @@ const register = async (req, res, next) => {
     if (existingUser)
       return BadRequestError(res, "this email is already in use");
     const passwordHash = await hashingPassword(password);
-    const user = await AUTH_SERVICE.createUser({
+    const user = await AUTH_SERVICE.createUser(
       fullName,
       username,
       email,
-      passwordHash,
-    });
+      passwordHash
+    );
     okResponse(res, 201, "user created successfully !! ", user);
   } catch (error) {
     console.log(`error in register ${error.message}`);

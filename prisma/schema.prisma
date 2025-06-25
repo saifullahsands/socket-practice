@@ -17,6 +17,9 @@ model User {
   groupMembership GroupUser[]
   sentMessages    groupMessage[]
 
+  blocks    Block[] @relation("Blocker")
+  blockedBy Block[] @relation("Blocked")
+
   @@index([email])
 }
 
@@ -56,4 +59,16 @@ model groupMessage {
 
   group  Group @relation(fields: [group_id], references: [id])
   Sender User  @relation(fields: [sender_id], references: [id])
+}
+
+model Block {
+  id         Int      @id @default(autoincrement())
+  blockerId  Int
+  blockedId  Int
+  created_at DateTime @default(now())
+
+  blocker User @relation(fields: [blockerId], references: [id], name: "Blocker")
+  blocked User @relation(fields: [blockedId], references: [id], name: "Blocked")
+
+  @@unique([blockerId, blockedId])
 }

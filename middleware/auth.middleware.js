@@ -6,13 +6,13 @@ const prisma = require("../prismaClient");
 
 const SocketAuth = async (socket, next) => {
   try {
-    const token = socket.handshake.auth?.token;
+    const token = socket.handshake.headers?.token;
     if (!token || !token.startsWith("Bearer ")) {
       return next(new Error("Token not found or malformed"));
     }
 
     const jwtToken = token.split(" ")[1];
-    const decoded = jwt.verify(jwtToken, JWT_SECRET);
+    const decoded = JWT.verify(jwtToken, JWT_SECRET);
 
     const user = await prisma.user.findUnique({
       where: { id: parseInt(decoded.id) },
@@ -23,6 +23,7 @@ const SocketAuth = async (socket, next) => {
     delete user.password;
     socket.user = user; // for full info
     socket.userId = user.id; // for quick access
+    
 
     next();
   } catch (error) {

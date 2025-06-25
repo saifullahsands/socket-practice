@@ -1,20 +1,17 @@
-const { Server } = require("socket.io");
-const { createServer } = require("http");
-const express = require("express");
-const app = express();
+const server = require("./app");
 const { PORT } = require("./config/env.config");
-const rootRouter = require("./routes/rootRouter");
-const server = createServer(app);
-const io = new Server(server);
-app.use(express.json());
+const prisma = require("./prismaClient");
+const { connectionDb } = require("./config/db.config");
 
-// io.on("connection",(socket)=>{
-//     console.log(`erorr in connection`)
-// })
-
-app.use("/api/v1", rootRouter);
-require("./socket/index")(io);
-
-server.listen(PORT, () => console.log(`server is running on PORT :: ${PORT}`));
-
-module.exports = io;
+(async function () {
+  try {
+    await connectionDb();
+    server.listen(PORT, () =>
+      console.log(`server is running on port : ${PORT}`)
+    );
+  } catch (error) {
+    await prisma.$disconnect();
+    console.log(`errror in server connected with  database`);
+    process.exit(1);
+  }
+})();

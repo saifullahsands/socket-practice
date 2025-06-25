@@ -8,7 +8,7 @@ module.exports = async function (socket, io) {
       }
       await CHAT_SERVICE.addUserToGroup(socket.userId, groupId);
       await socket.join(groupId);
-
+      console.log("User's rooms:", socket.rooms);
       socket.to(groupId).emit("user-joined", {
         userId: socket.userId,
         groupId,
